@@ -1,0 +1,327 @@
+/*
+* DEFINICOES GERAIS
+*/
+*
+
+{
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+}
+body, img, dl, dt, dd, h1, h2, h3, h4, h5, h6, form{
+	padding:0px;
+	margin:0px;
+	border:none;
+}
+
+*.Clear{
+	font-size:0px;
+	line-height:0px;
+	height:0px;
+	clear:both;
+}
+*.OnlyPrint{
+	display:none;
+}
+
+
+
+/**
+ * FORMULARIO
+ */
+form{
+	padding:0;
+	border:none;
+	margin:0;
+}
+dl.FieldHolder{
+	float:left;
+	margin-bottom:10px;
+	margin-right:4px;
+}
+dl.FieldHolder dt{
+	font-weight:bold;
+	padding-left:3px;
+	padding-right:3px;
+	background-color:#eee;
+	height:27px;
+	line-height:27px;
+	text-align:right;
+	float:left;
+}
+dl.FieldHolder dd{
+	border: 1px solid #ddd;
+	border-left:3px solid #ccc;
+	padding-left:3px;
+	padding-top:2px;
+	padding-right:3px;
+	float:left;
+	min-height:23px;
+}
+dl.FieldHolder dd input{
+	border:1px solid #fff;
+	border-bottom:1px solid #ccc;
+	height:17px;
+	margin:0;
+	padding:0;
+	margin-bottom:2px;
+}
+
+
+dl.FieldHolder.Obrigatorio dd{
+	abackground-image:url(../../../inepseam/resource/image/asteriscoLaranjado.jpg);
+	background-position:3px 3px;
+	background-repeat:no-repeat;
+}
+dl.FieldHolder.ObrigatorioOK dd{
+	abackground-image:url(../../../inepseam/resource/image/asteriscoVerde.jpg);
+	background-position:3px 3px;
+	background-repeat:no-repeat;
+} 
+
+
+dl.FieldHolder.Obrigatorio dd input,
+dl.FieldHolder.ObrigatorioOK dd input,
+dl.FieldHolder.Obrigatorio dd select,
+dl.FieldHolder.ObrigatorioOK dd select{
+	margin-left:17px;
+}
+	dl.FieldHolder dd div.Error{
+		font-weight:bold;
+		clear:both;
+		line-height:18px;
+		font-size:10px;
+		font-style:italic;
+		background-image:url(../../../inepseam/resource/image/exclamacaoVermelho.jpg);
+		background-repeat:no-repeat;
+		padding-left:17px;
+		color:#666;
+	}
+	dl.FieldHolder dd div.Error strong{
+		font-weight:bold;
+		color:#333;
+		text-decoration:underline;
+	}
+
+dl.FieldHolder input.Error,
+dl.FieldHolder select.Error,
+span.Error dl.FieldHolder dd input{
+	border:2px solid #c00;
+}
+
+form h1{
+	font-size:14px;
+	color:#333;
+	border-bottom:3px solid #ccc;
+	margin-bottom:5px;
+	margin-top:10px;
+}
+form h2{
+	font-size:13px;
+}
+form h3{
+	font-size:12px;
+}
+
+
+
+dl.Radio dd table{
+	border-collapse:collapse;
+	margin-left:7px;
+}
+dl.Radio dd input,
+dl.Check dd input{
+	width:auto !important;
+	height:auto !important;
+	border:none !important;
+	margin:0 !important;
+}
+dl.Radio dd td,
+dl.Check dd td{
+	vertical-align:top;
+	padding-left:10px;
+}
+
+
+/**
+ * FORMULARIO TAMANHOS
+ */
+
+dl.FieldHolder .t1{			width:54px;		}
+dl.FieldHolder .t1 input,
+dl.FieldHolder .t1 select{	width:52px;		}
+dl.ObrigatorioOK .t1 input,
+dl.ObrigatorioOK .t1 select,
+dl.Obrigatorio .t1 input,
+dl.Obrigatorio .t1 select{	width:34px;		}
+
+dl.FieldHolder .t2{			width:117px;	}
+dl.FieldHolder .t2 input,
+dl.FieldHolder .t2 select{	width:115px;	}
+dl.ObrigatorioOK .t2 input,
+dl.ObrigatorioOK .t2 select,
+dl.Obrigatorio .t2 input,
+dl.Obrigatorio .t2 select{	width:97px;		}
+
+dl.FieldHolder .t3{			width:180px;	}
+dl.FieldHolder .t3 input,
+dl.FieldHolder .t3 select{	width:178px;	}
+dl.ObrigatorioOK .t3 input,
+dl.ObrigatorioOK .t3 select,
+dl.Obrigatorio .t3 input,
+dl.Obrigatorio .t3 select{	width:160px;	}
+
+dl.FieldHolder .t4{			width:243px;	}
+dl.FieldHolder .t4 input,
+dl.FieldHolder .t4 select{	width:241px;	}
+dl.ObrigatorioOK .t4 input,
+dl.ObrigatorioOK .t4 select,
+dl.Obrigatorio .t4 input,
+dl.Obrigatorio .t4 select{	width:223px;	}
+
+dl.FieldHolder .t5{			width:306px;	}
+dl.FieldHolder .t5 input,
+dl.FieldHolder .t5 select{	width:304px;	}
+dl.ObrigatorioOK .t5 input,
+dl.ObrigatorioOK .t5 select,
+dl.Obrigatorio .t5 input,
+dl.Obrigatorio .t5 select{	width:286px;	}
+
+dl.FieldHolder .t6{			width:369px;	}
+dl.FieldHolder .t6 input,
+dl.FieldHolder .t6 select{	width:367px;	}
+dl.ObrigatorioOK .t6 input,
+dl.ObrigatorioOK .t6 select,
+dl.Obrigatorio .t6 input,
+dl.Obrigatorio .t6 select{	width:349px;	}
+
+dl.FieldHolder .t7{			width:431px;	}
+dl.FieldHolder .t7 input,
+dl.FieldHolder .t7 select{	width:429px;	}
+dl.ObrigatorioOK .t7 input,
+dl.ObrigatorioOK .t7 select,
+dl.Obrigatorio .t7 input,
+dl.Obrigatorio .t7 select{	width:311px;	}
+
+dl.FieldHolder .t8{			width:494px;	}
+dl.FieldHolder .t8 input,
+dl.FieldHolder .t8 select{	width:492px;	}
+dl.ObrigatorioOK .t8 input,
+dl.ObrigatorioOK .t8 select,
+dl.Obrigatorio .t8 input,
+dl.Obrigatorio .t8 select{	width:474px;	}
+
+dl.FieldHolder .t9{			width:557px;	}
+dl.FieldHolder .t9 input,
+dl.FieldHolder .t9 select{	width:555px;	}
+dl.ObrigatorioOK .t9 input,
+dl.ObrigatorioOK .t9 select,
+dl.Obrigatorio .t9 input,
+dl.Obrigatorio .t9 select{	width:537px;	}
+
+dl.FieldHolder .t10{		width:621px;	}
+dl.FieldHolder .t10 input,
+dl.FieldHolder .t10 select{	width:619px;	}
+dl.ObrigatorioOK .t10 input,
+dl.ObrigatorioOK .t10 select,
+dl.Obrigatorio .t10 input,
+dl.Obrigatorio .t10 select{	width:601px;	}
+
+dl.FieldHolder .t11{		width:684px;	}
+dl.FieldHolder .t11 input,
+dl.FieldHolder .t11 select{	width:682px;	}
+dl.ObrigatorioOK .t11 input,
+dl.ObrigatorioOK .t11 select,
+dl.Obrigatorio .t11 input,
+dl.Obrigatorio .t11 select{	width:664px;	}
+
+dl.FieldHolder .t12{		width:720px;	}
+dl.FieldHolder .t12 input,
+dl.FieldHolder .t12 select{	width:718px;	}
+dl.ObrigatorioOK .t12 input,
+dl.ObrigatorioOK .t12 select,
+dl.Obrigatorio .t12 input,
+dl.Obrigatorio .t12 select{	width:710px;	}
+
+div.message {
+	padding: 5px;
+	list-style: none;
+	border: 0;
+	background: none;
+	padding: 0;
+	color: #000000;
+	margin: 5px 0 8px 0;
+	font-size: 12px;
+	background: no-repeat left center;
+	padding-top: 1px;
+	padding-left: 20px;
+	margin-left: 3px;
+}
+
+div.message infomessage {
+	color: green;
+	font-size: 20px;
+}
+
+div.message errormessage {
+	color: red;
+	font-size: 30px;
+}
+
+div.message warnmessage {
+	color: yellow;
+	font-size: 40px;
+}
+
+.message {
+	padding: 5px;
+	list-style: none;
+	list-style-position:inside;
+	background: none;
+	color: #000000;
+	font-size: 12px;
+	border: 0;
+	
+}
+
+
+.message li {
+	background: no-repeat left center;
+	padding-top: 1px;
+	padding-left: 1px;
+	margin-left: -50px;
+	list-style: none;
+	height: 40px;
+	border-left: 1px solid;
+	border-bottom: 1px solid;
+	border-top: 1px solid;
+	border-right: 1px solid;
+	line-height: 40px;
+	 
+
+}
+
+.message li.infomsg {
+	background-image: url(../../../inepseam/resource/image/inf.gif);
+	background-position:2% 50%;
+}
+
+.message li.errormsg {
+	background-image: url(../../../inepseam/resource/image/err.gif);
+	background-color: antiquewhite;
+	background-position:2% 50%;
+}
+
+.message li.warnmsg {
+	background-image: url(../../../inepseam/resource/image/wrn.gif);
+	background-color: lightyellow;
+	background-position:2% 50%;
+}
+
+/**
+ * 
+ */
+input[type=radio],input[type=checkbox] { width: 13px !important; }
+
+dl.FieldHolder dt span{
+    font-weight: normal !important;
+}

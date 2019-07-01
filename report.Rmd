@@ -1,0 +1,138 @@
+---
+title: "IN1119: Projeto Final"
+subtitle: "Princípios e Técnicas da Análise Estatística Experimental"
+author: "Daladier Delmiro, Rodrigo Bernardino, Rodrigo Valentim"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output:
+    html_document:
+        number_sections: TRUE
+---
+
+# Exploração de Dados: IDEB x Contas do Governo
+
+Basic libraries for dealing with data:
+```{r}
+library(plotly)       # interactive graphs
+library(RColorBrewer) # make new color sets
+library(tidyverse)    # easy manipulation of dataframes
+library(DT)           # generate interactive html tables
+library(rvest)        # scrap web pages
+```
+
+Some libraries for better handling Rmarkdown:
+```{r}
+library(DT) # iteractive datatables
+```
+
+```{r include=FALSE}
+# FILES CONSTANTS
+base.dir <- "."
+data.dir <- join.path(base.dir, "data")
+output.dir <- join.path(base.dir, "results/")
+
+# custom files
+source("utils.R")
+```
+
+```{r include=FALSE}
+# some console printing setup
+options(digits=4)
+options(na.action = 'na.warn')
+options(width=96) # max width in output/print commands
+```
+
+## Leitura dos Dados
+
+Lê dados de contas do governo
+```{r}
+despesas.funcao.2018 <- read_csv2(
+  join.path(data.dir, "tesouro-csv", "2018_Despesas-Funcao-ESTADOS.csv"),
+  locale=locale(encoding="ISO-8859-15"),
+  skip=3,
+  col_types = cols(.default = col_factor(NULL),
+                   "População" = col_number(),
+                   Valor = col_number()))
+
+datatable(despesas.funcao.2018, filter="top")
+```
+
+Lê dados do IDEB 4o-5o anos para cada estado, primeiro direto do HTML:
+```{r}
+# leitura direto do HTML
+estados45ano.path <- join.path(data.dir, "ideb/estados/4-5-ano/ideb_estados_escolas-publica_4-5ano.html")
+estados45ano.tabletag <- "#resultadoDataTable4"
+estados45ano.html <- read_html(estados45ano.path) %>%
+  html_node(estados45ano.tabletag) %>%
+  html_table() ->
+  estados45ano.table # retorna um "data_frame()" padrão, depois converteremos para "tibble"
+
+datatable(estados45ano.table, options=list(scrollX=T))
+```
+
+Então, formatamos para ficar mais "tidy":
+
+<b>OBS:</b> Mais detalhes sobre o tratamento de dados no `main.R`
+
+```{r}
+# trata colunas de "Ideb Observado"
+estados45ano.observado <- estados45ano.table[, colnames(t) %in% c("", "Ideb Observado")]
+colnames(estados45ano.observado) <- estados45ano.observado[1,]
+estados45ano.observado <- estados45ano.observado[-1,] # elimina a primeira linha
+estados45ano.observado <- estados45ano.observado %>%
+  as.tibble() %>% # converte num formato de tabela mais moderno de tabela
+  gather("Ano", "Ideb", 2:8) # unifica as colunas de "ano" em uma só
+
+# trata colunas de "Metas"
+estados45ano.metas <- estados45ano.table[, colnames(t) %in% c("", "Metas Projetadas")]
+colnames(estados45ano.metas) <- estados45ano.metas[1,]
+estados45ano.metas <- estados45ano.metas[-1,]
+estados45ano.metas <- estados45ano.metas %>%
+  as.tibble() %>%
+  gather("Ano", "Meta", 2:9)
+
+# mescla as duas
+estados45ano.df <- inner_join(estados45ano.observado, estados45ano.metas, by=c("Estado", "Ano"))
+
+datatable(estados45ano.df, rownames=F, filter="top")
+```
+
+## Exploração Inicial
+### Despesas por Função: 2018
+
+* You can search for specific items
+* You may also navigate through several pages of data
+
+```{r}
+datatable(despesas.funcao.2018,
+          rownames=F,
+          filter="top",
+          options=list(pageLength = 5, scrollX=T))
+```
+
+### Checando os tipos de despesa
+
+```{r}
+despesas.funcao.2018 %>%
+  select(Conta) %>%
+  unique() %>%
+  datatable(rownames=F, filter="top")
+```
+
+### Visualizando População
+```{r}
+despesas.funcao.2018 %>%
+  select(UF, População) %>%
+  ggplot(aes(x=UF, y=População)) +
+  geom_bar(stat = "identity")
+```
+
+### Visualizando os Investimentos
+
+```{r}
+despesas.funcao.2018 %>%
+  filter(startsWith(as.character(Conta), "12")) %>%
+  group_by(UF) %>%
+  summarise(InvEduc = sum(Valor)) %>%
+  ggplot(aes(x=UF, y=InvEduc)) +
+  geom_bar(stat = "identity")
+```

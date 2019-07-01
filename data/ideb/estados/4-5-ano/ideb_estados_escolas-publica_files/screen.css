@@ -1,0 +1,544 @@
+#Header .Topo ul{
+	display:none !important;
+}
+
+
+
+
+
+/*
+* DEFINICOES GERAIS
+*/
+*{
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+}
+body, img, dl, dt, dd, h1, h2, h3, h4, h5, h6, form{
+	padding:0px;
+	margin:0px;
+	border:none;
+}
+body{
+	 background:#CEA893;
+}
+*.Clear{
+	font-size:0px;
+	line-height:0px;
+	height:0px;
+	clear:both;
+}
+*.OnlyPrint{
+	display:none;
+}
+
+
+/*
+ * WRAPPER E PRINCIPAIS
+ */
+#Wrapper{
+	background-color:#fff;
+	width:1002px;
+	margin-left:auto;
+	margin-right:auto;
+	background-image:url(../files/images/bgs/documento.gif);
+	background-repeat:repeat-y;
+}
+#LeftMenu{
+	background-image:url(../files/images/bgs/menuPrincipal.jpg);
+	background-repeat:no-repeat;
+	background-color:#e9ceb9;
+	width:200px;
+	margin-right:3px;
+	float:left;
+	padding:6px;
+}
+#LeftMenu ul,
+#LeftMenu li{
+	border:none;
+	margin:0;
+	padding:0;
+	list-style:none;
+}
+#LeftMenu ul{
+	width:200px;
+	background-color:#fff;
+}
+#LeftMenu ul li{
+	padding:1px;
+	border-bottom:1px solid #CEA893;
+	border-left:1px solid #CEA893;
+	border-right:1px solid #CEA893;
+	clear:both;
+}
+#LeftMenu ul li a{
+	display:block;
+	cursor:pointer;
+	border-left:3px solid #9A0000;
+	padding-left:10px;
+	padding-top:3px;
+	padding-bottom:3px;
+	text-decoration:none;
+	color: #9A0000;
+}
+#LeftMenu ul li a:hover{
+	border-left:3px solid #fc0;
+	border-bottom:2px solid #CEA893;
+	padding-bottom:1px;
+}
+	#LeftMenu ul li ul{
+		width:196px;
+	}
+	#LeftMenu ul li ul li{
+		margin-left:0px;
+		background-color: #fff;
+		border-bottom: none;
+		border-right: none;
+		border-left:10px solid #eee;
+	}
+	#LeftMenu ul li ul li a{
+		line-height: 14px;
+		display:block;
+		padding-top:2px;
+		padding-bottom:2px;
+	}
+	#LeftMenu ul li ul li a:hover{
+		border-bottom-width:1px;
+		padding-bottom:1px;
+	}
+	#LeftMenu ul li ul li ul{
+		width:182px;
+	}
+	#LeftMenu ul li ul li ul li{
+		margin-left:0px; 
+	}
+	
+
+
+
+
+#ContentHolder{
+	padding-left:14px;
+	padding-bottom:14px;
+	padding-top:8px;
+	padding-right:0px;
+	float:left;
+	width:756px;
+}
+
+
+/**
+* CABECALHO
+*/
+#Header .MEC{
+	height:35px;
+	width:1002px;
+	background: url("http://public.inep.gov.br/Files/Images/Logos/barra_governo1002.png") repeat scroll 0 0 #CEA893;
+}
+#Header .MEC #LinkMEC{
+	cursor:pointer;
+	float:left;
+	height:21px;
+	width:180px;
+	background-repeat:no-repeat;
+	background-position:10px 0px;
+}
+#Header .MEC .ComboHolder{
+	float:right;
+	height:20px;
+	width:286px;
+	padding-top:1px;
+	background-image:url(../files/images/logos/logo_eleicoes.jpg);
+	background-repeat:no-repeat;
+	background-position:204px 0px;
+}
+#Header .MEC .ComboHolder select{
+	font-size: 10px;
+	font-style: normal;
+	background-color: #f8c400;
+}
+#Header .INEP{
+	height:32px;
+	background-image:url(../files/images/bgs/headerInep.jpg);
+	width:1002px;
+}
+#Header .INEP #LinkINEP{
+	cursor:pointer;
+	float:left;
+	height:32px;
+	width:95px;
+}
+
+/**
+ * CABECALHO BACK PRINCIPAL
+ */
+#Header .Topo{
+	background-image:url(../files/images/bgs/cabecalho.gif);
+	background-position:212px 0;
+	width:1002px;
+	height:92px;
+}
+#Header .Topo .Ilustracao{
+	background-image:url(../files/images/bgs/cabecalhoIlustracao.jpg);
+	width:213px;
+	height:92px;
+	float:left;
+}
+
+	/**
+	 * CABECALHO LINKS PRINCIPAIS
+	 */
+	#Header .Topo ul{
+		float:right;
+		margin:0;
+	}
+	#Header .Topo ul li{
+		float:left;
+		list-style:none;
+		padding-top:5px;
+		background-repeat:no-repeat;
+		background-position:bottom;
+	}
+	#Header .Topo ul li a{
+		height:23px;
+		display:block;
+		text-indent:-5000px;
+	}
+	#Header .Topo ul li#MnSobreInep a{
+		width:101px;
+		background-image:url(../files/images/botoes/menuPrincipal/sobreInep.jpg);
+	}
+	#Header .Topo ul li#MnGestao a{
+		width:71px;
+		background-image:url(../files/images/botoes/menuPrincipal/gestao.jpg);
+	}
+	#Header .Topo ul li#MnConcursos a{
+		width:87px;
+		background-image:url(../files/images/botoes/menuPrincipal/concursos.jpg);
+	}
+	#Header .Topo ul li#MnImprensa a{
+		width:87px;
+		background-image:url(../files/images/botoes/menuPrincipal/imprensa.jpg);
+		margin-right:10px;
+	}
+
+
+/**
+ * RODAPE
+ */
+#Footer{
+	background-color:#9A0000;
+	width:1002px;
+	height:22px;
+	line-height:22px;
+	text-align:center;
+	color:#fff;
+}
+
+
+/**
+ * TITULOS
+ */
+h1, h2, h3, h4, h5, h6{
+	color:#9A0000;
+	font-weight:bold;
+}
+h1{
+	font-size:24px;
+}
+h2{
+	font-size:22px;
+}
+h3{
+	font-size:20px;
+}
+h4{
+	font-size:18px;
+}
+h5{
+	font-size:16px;
+}
+h6{
+	font-size:14px;
+}
+
+
+
+
+/**
+ * FORMULARIO
+ */
+form{
+	padding:0;
+	border:none;
+	margin:0;
+}
+dl.FieldHolder{
+	float:left;
+	padding:0;
+	margin:0;
+	margin-bottom:6px;
+}
+dl.FieldHolder dt{
+	float:left;
+	height:27px;
+	line-height:27px;
+	text-align:right;
+	font-weight:bold;
+	background-color:#eee;
+	border-left:2px solid #fff;
+}
+dl.FieldHolder dd{
+	float:left;
+	border: 1px solid #ddd;
+	border-left:3px solid #ccc;
+}
+dl.FieldHolder dd input{
+	border:2px solid #fff;
+	border-bottom:2px solid #ccc;
+	height:17px;
+	margin-top:2px;
+	margin-bottom:2px;
+	*margin-top:1px;
+	*margin-bottom:1px;
+	padding:0;
+}
+dl.FieldHolder dd select{
+	border:2px solid #fff;
+	margin-top:2px;
+	margin-bottom:2px;
+}
+dl.FieldHolder.Obrigatorio dd{
+	background-image:url(../files/images/icons/fieldMarkers/asteriscoLaranjado.jpg);
+	background-position:3px 3px;
+	background-repeat:no-repeat;
+}
+dl.FieldHolder.ObrigatorioOK dd{
+	background-image:url(../files/images/icons/fieldMarkers/asteriscoVerde.jpg);
+	background-position:3px 3px;
+	background-repeat:no-repeat;
+}
+dl.FieldHolder.Obrigatorio dd input,
+dl.FieldHolder.ObrigatorioOK dd input,
+dl.FieldHolder.Obrigatorio dd select,
+dl.FieldHolder.ObrigatorioOK dd select{
+	margin-left:19px;
+}
+	dl.FieldHolder dd div.Error{
+		font-weight:bold;
+		clear:both;
+		line-height:18px;
+		font-size:10px;
+		font-style:italic;
+		background-image:url(../files/images/icons/fieldMarkers/exclamacaoVermelho.jpg);
+		background-repeat:no-repeat;
+		background-position:3px 0px;
+		padding-left:19px;
+		color:#666;
+	}
+	dl.FieldHolder dd div.Error strong{
+		font-weight:bold;
+		color:#333;
+		text-decoration:underline;
+	}
+
+dl.FieldHolder input.Error,
+dl.FieldHolder select.Error,
+span.Error dl.FieldHolder dd input{
+	border:2px solid #c00;
+}
+
+form h1{
+	font-size:14px;
+	color:#333;
+	border-bottom:3px solid #ccc;
+	margin-bottom:5px;
+	margin-top:10px;
+}
+form h2{
+	font-size:13px;
+}
+form h3{
+	font-size:12px;
+}
+
+
+
+
+/**
+ * FORMULARIO TAMANHOS
+ */
+dl.FieldHolder .t1{			width:58px;		}
+dl.FieldHolder .t1 input,
+dl.FieldHolder .t1 select{	width:53px;		}
+dl.ObrigatorioOK .t1 input,
+dl.ObrigatorioOK .t1 select,
+dl.Obrigatorio .t1 input,
+dl.Obrigatorio .t1 select{	width:33px;		}
+
+dl.FieldHolder .t2{			width:119px;	}
+dl.FieldHolder .t2 input,
+dl.FieldHolder .t2 select{	width:114px;	}
+dl.ObrigatorioOK .t2 input,
+dl.ObrigatorioOK .t2 select,
+dl.Obrigatorio .t2 input,
+dl.Obrigatorio .t2 select{	width:94px;		}
+
+dl.FieldHolder .t3{			width:180px;	}
+dl.FieldHolder .t3 input,
+dl.FieldHolder .t3 select{	width:175px;	}
+dl.ObrigatorioOK .t3 input,
+dl.ObrigatorioOK .t3 select,
+dl.Obrigatorio .t3 input,
+dl.Obrigatorio .t3 select{	width:155px;	}
+
+dl.FieldHolder .t4{			width:241px;	}
+dl.FieldHolder .t4 input,
+dl.FieldHolder .t4 select{	width:236px;	}
+dl.ObrigatorioOK .t4 input,
+dl.ObrigatorioOK .t4 select,
+dl.Obrigatorio .t4 input,
+dl.Obrigatorio .t4 select{	width:214px;	}
+
+
+dl.FieldHolder .t5{			width:302px;	}
+dl.FieldHolder .t5 input,
+dl.FieldHolder .t5 select{	width:298px;	}
+dl.ObrigatorioOK .t5 input,
+dl.ObrigatorioOK .t5 select,
+dl.Obrigatorio .t5 input,
+dl.Obrigatorio .t5 select{	width:279px;	}
+
+dl.FieldHolder .t6{			width:363px;	}
+dl.FieldHolder .t6 input,
+dl.FieldHolder .t6 select{	width:358px;	}
+dl.ObrigatorioOK .t6 input,
+dl.ObrigatorioOK .t6 select,
+dl.Obrigatorio .t6 input,
+dl.Obrigatorio .t6 select{	width:338px;	}
+
+dl.FieldHolder .t7{			width:423px;	}
+dl.FieldHolder .t7 input,
+dl.FieldHolder .t7 select{	width:418px;	}
+dl.ObrigatorioOK .t7 input,
+dl.ObrigatorioOK .t7 select,
+dl.Obrigatorio .t7 input,
+dl.Obrigatorio .t7 select{	width:398px;	}
+
+dl.FieldHolder .t8{			width:484px;	}
+dl.FieldHolder .t8 input,
+dl.FieldHolder .t8 select{	width:479px;	}
+dl.ObrigatorioOK .t8 input,
+dl.ObrigatorioOK .t8 select,
+dl.Obrigatorio .t8 input,
+dl.Obrigatorio .t8 select{	width:459px;	}
+
+dl.FieldHolder .t9{			width:545px;	}
+dl.FieldHolder .t9 input,
+dl.FieldHolder .t9 select{	width:540px;	}
+dl.ObrigatorioOK .t9 input,
+dl.ObrigatorioOK .t9 select,
+dl.Obrigatorio .t9 input,
+dl.Obrigatorio .t9 select{	width:520px;	}
+
+dl.FieldHolder .t10{		width:607px;	}
+dl.FieldHolder .t10 input,
+dl.FieldHolder .t10 select{	width:602px;	}
+dl.ObrigatorioOK .t10 input,
+dl.ObrigatorioOK .t10 select,
+dl.Obrigatorio .t10 input,
+dl.Obrigatorio .t10 select{	width:582px;	}
+
+dl.FieldHolder .t11{		width:668px;	}
+dl.FieldHolder .t11 input,
+dl.FieldHolder .t11 select{	width:663px;	}
+dl.ObrigatorioOK .t11 input,
+dl.ObrigatorioOK .t11 select,
+dl.Obrigatorio .t11 input,
+dl.Obrigatorio .t11 select{	width:643px;	}
+
+dl.FieldHolder .t12{		width:728px;	}
+dl.FieldHolder .t12 input,
+dl.FieldHolder .t12 select{	width:723px;	}
+dl.ObrigatorioOK .t12 input,
+dl.ObrigatorioOK .t12 select,
+dl.Obrigatorio .t12 input,
+dl.Obrigatorio .t12 select{	width:703px;	}
+
+
+#barra-brasil-v3 {
+	background: none repeat scroll 0pt 0pt rgb(0, 80, 15); 
+	clear: both; 
+	height: 28px; 
+	min-width: 992px; 
+	overflow: hidden; 
+	position: relative;
+}
+
+#barra-brasil-v3 span {
+    background: url(../files/images/logos/barra-brasil-v3-bgx.gif) repeat-x scroll 0 bottom transparent;
+    display: block;
+    height: 28px;
+    width: 50%;
+}
+
+#barra-brasil-v3 span .imagemGov {
+    background: url(../files/images/logos/barra-brasil-v3-verde.gif) no-repeat scroll right top transparent;
+    height: 24px;
+    left: 50%;
+    margin-left: -490px;
+    position: absolute;
+    top: 4px;
+    width: 992px;
+}
+
+#barra-brasil-v3 span .brasilgov {
+    border: 0 none !important;
+    display: block;
+    float: right;
+    height: 24px;
+    width: 100px;
+}
+
+#barra-brasil-v3 span .brasilgovAI {
+    background: url(../files/images/logos/ai.png) no-repeat;
+    width: 161px;
+    height: 24px;
+    float: right;
+    display: block;
+    border: 0!important;
+    margin: 0 30px 0 0;
+}
+
+.AcessibilidadeBotoes {
+	width: 300px; 
+	height: 22px;
+	text-align: right;
+	margin-left: auto; 
+	padding: 5px;
+}
+
+#FonteNormal {
+	color: white;
+	text-decoration: none;
+}
+		
+#AumentarFonte {
+	color: white;
+	text-decoration: none;
+}
+		
+#DiminuirFonte {
+	color: white;
+	text-decoration: none;
+}
+
+
+
+
+
+
+
+
+
+
+
