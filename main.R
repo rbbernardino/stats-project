@@ -50,7 +50,7 @@ estados45ano.html <- read_html(estados45ano.path) %>%
 # A primeira linha é a divisão de subtabelas, a segunda é de fato o header da
 # coluna com "Estado" e uma coluna para cada ano, primeiro separamos
 # as duas, tratamos individualmente e juntamos no final
-estados45ano.observado <- estados45ano.table[, colnames(t) %in% c("", "Ideb Observado")]
+estados45ano.observado <- estados45ano.table[, colnames(estados45ano.table) %in% c("", "Ideb Observado")]
 colnames(estados45ano.observado) <- estados45ano.observado[1,]
 estados45ano.observado <- estados45ano.observado[-1,] # elimina a primeira linha
 estados45ano.observado <- estados45ano.observado %>%
@@ -59,7 +59,7 @@ estados45ano.observado <- estados45ano.observado %>%
 
 # acrescentei a tabela de metas "for completeness", pois só estamos interessados
 # no Ideb observado
-estados45ano.metas <- estados45ano.table[, colnames(t) %in% c("", "Metas Projetadas")]
+estados45ano.metas <- estados45ano.table[, colnames(estados45ano.table) %in% c("", "Metas Projetadas")]
 colnames(estados45ano.metas) <- estados45ano.metas[1,]
 estados45ano.metas <- estados45ano.metas[-1,]
 estados45ano.metas <- estados45ano.metas %>%
