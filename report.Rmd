@@ -17,6 +17,7 @@ library(RColorBrewer) # make new color sets
 library(tidyverse)    # easy manipulation of dataframes
 library(DT)           # generate interactive html tables
 library(rvest)        # scrap web pages
+source("utils.R")     # custom files with utilitary functions
 ```
 
 Some libraries for better handling Rmarkdown:
@@ -25,9 +26,6 @@ library(DT) # iteractive datatables
 ```
 
 ```{r include=FALSE}
-# custom files with utilitary functions
-source("utils.R")
-
 # FILES CONSTANTS
 base.dir <- "."
 data.dir <- join.path(base.dir, "data")
@@ -56,51 +54,16 @@ despesas.funcao.2018 <- read_csv2(
 datatable(despesas.funcao.2018, filter="top")
 ```
 
-Lê dados do IDEB 4o-5o anos para cada estado, primeiro direto do HTML:
+Lê dados do IDEB 4o-5o anos para cada estado, já foi convertido do HTML para CSV:
 ```{r}
-# leitura direto do HTML
-estados45ano.path <- join.path(data.dir, "ideb/estados/4-5-ano/ideb_estados_escolas-publica_4-5ano.html")
-estados45ano.tabletag <- "#resultadoDataTable4"
-estados45ano.html <- read_html(estados45ano.path) %>%
-  html_node(estados45ano.tabletag) %>%
-  html_table() ->
-  estados45ano.table # retorna um "data_frame()" padrão, depois converteremos para "tibble"
-
-datatable(estados45ano.table, options=list(scrollX=T))
-```
-
-Então, formatamos para ficar mais "tidy":
-
-<b>OBS:</b> Mais detalhes sobre o tratamento de dados no `main.R`
-
-```{r}
-# trata colunas de "Ideb Observado"
-estados45ano.observado <- estados45ano.table[, colnames(t) %in% c("", "Ideb Observado")]
-colnames(estados45ano.observado) <- estados45ano.observado[1,]
-estados45ano.observado <- estados45ano.observado[-1,] # elimina a primeira linha
-estados45ano.observado <- estados45ano.observado %>%
-  as.tibble() %>% # converte num formato de tabela mais moderno de tabela
-  gather("Ano", "Ideb", 2:8) # unifica as colunas de "ano" em uma só
-
-# trata colunas de "Metas"
-estados45ano.metas <- estados45ano.table[, colnames(t) %in% c("", "Metas Projetadas")]
-colnames(estados45ano.metas) <- estados45ano.metas[1,]
-estados45ano.metas <- estados45ano.metas[-1,]
-estados45ano.metas <- estados45ano.metas %>%
-  as.tibble() %>%
-  gather("Ano", "Meta", 2:9)
-
-# mescla as duas
-estados45ano.df <- inner_join(estados45ano.observado, estados45ano.metas, by=c("Estado", "Ano"))
-
-datatable(estados45ano.df, rownames=F, filter="top")
+# leitura do CSV extraído do HTML
+estados45ano.df <- read_csv2(join.path(data.dir, "ideb/ideb-csv/ideb-estados-45ano.csv"))
+estados89ano.df <- read_csv2(join.path(data.dir, "ideb/ideb-csv/ideb-estados-89ano.csv"))
+datatable(estados45ano.df, options=list(scrollX=T), rownames=F, filter="top")
 ```
 
 ## Exploração Inicial
 ### Despesas por Função: 2018
-
-* You can search for specific items
-* You may also navigate through several pages of data
 
 ```{r}
 datatable(despesas.funcao.2018,
@@ -127,6 +90,17 @@ despesas.funcao.2018 %>%
 ```
 
 ### Visualizando os Investimentos
+
+É aplicado um filtro para calcular a soma total de investimentos em educação de todo tipo "código inicia com 12"
+
+```{r}
+despesas.funcao.2018 %>%
+  filter(startsWith(as.character(Conta), "12")) %>% # todas que começam com "12", "12.1234" etc.
+  group_by(UF) %>%
+  summarise(InvEduc = sum(Valor)) %>%
+  ggplot(aes(x=UF, y=InvEduc)) +
+  geom_bar(stat = "identity")
+```
 
 ```{r}
 despesas.funcao.2018 %>%
