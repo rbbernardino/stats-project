@@ -25,13 +25,13 @@ library(DT) # iteractive datatables
 ```
 
 ```{r include=FALSE}
+# custom files with utilitary functions
+source("utils.R")
+
 # FILES CONSTANTS
 base.dir <- "."
 data.dir <- join.path(base.dir, "data")
 output.dir <- join.path(base.dir, "results/")
-
-# custom files
-source("utils.R")
 ```
 
 ```{r include=FALSE}

@@ -38,43 +38,55 @@ despesas.funcao.2018 <- read_csv2(
 
 ##########################################################|
 # READ IDEB DATA
+# função para extrair os dados do ideb a partir da listagem da página (html)
+# disponível em: http://ideb.inep.gov.br/
+parse.ideb.html <- function(html.path, table.id) {
+  read_html(html.path) %>%
+    html_node(table.id) %>%
+    html_table() # retorna um "data_frame()" padrão, depois converteremos para "tibble"
+}
 estados45ano.path <- join.path(data.dir, "ideb/estados/4-5-ano/ideb_estados_escolas-publica_4-5ano.html")
-estados45ano.tabletag <- "#resultadoDataTable4"
-estados45ano.html <- read_html(estados45ano.path) %>%
-  html_node(estados45ano.tabletag) %>%
-  html_table() ->
-  estados45ano.table # retorna um "data_frame()" padrão, depois converteremos para "tibble"
+estados89ano.path <- join.path(data.dir, "ideb/estados/8-9-ano/ideb_estados_escolas-publica_8-9ano.html")
+estados45ano.rawtable <- parse.ideb.html(estados45ano.path, "#resultadoDataTable4")
+estados89ano.rawtable <- parse.ideb.html(estados89ano.path, "#resultadoDataTable8")
 
 ##########################################################|
 # TIDY IDEB TABLE
-# A primeira linha é a divisão de subtabelas, a segunda é de fato o header da
-# coluna com "Estado" e uma coluna para cada ano, primeiro separamos
-# as duas, tratamos individualmente e juntamos no final
-estados45ano.observado <- estados45ano.table[, colnames(estados45ano.table) %in% c("", "Ideb Observado")]
-colnames(estados45ano.observado) <- estados45ano.observado[1,]
-estados45ano.observado <- estados45ano.observado[-1,] # elimina a primeira linha
-estados45ano.observado <- estados45ano.observado %>%
-  as.tibble() %>% # converte num formato de tabela mais moderno de tabela
-  gather("Ano", "Ideb", 2:8) # unifica as colunas de "ano" em uma só
+# A primeira linha é a divisão de subtabelas "Ideb Observado" x "Metas"
+# Foi erroneamente mapeado como o colnames()
+# A segunda linha contém "Estado", "2009" ... etc.
+# Vamos separar em duas tabelas:
+#     - Observado: Estado + Anos
+#     - Meta:      Estado + Anos
+# Tratamos individualmente primeiro e juntamos no final
+clean.ideb.table <- function(ideb.table) {
+  # obtém tabela "Observado"
+  ideb.observado <- ideb.table[, colnames(ideb.table) %in% c("", "Ideb Observado")]
+  colnames(ideb.observado) <- ideb.observado[1,] # ajusta nome das colunas
+  ideb.observado <- ideb.observado[-1,] # elimina a primeira linha
+  ideb.observado <- ideb.observado %>%
+    as.tibble() %>%                     # converte num formato de tabela mais moderno
+    gather("Ano", "Ideb", 2:8)          # unifica as colunas de "ano" em uma só
 
-# acrescentei a tabela de metas "for completeness", pois só estamos interessados
-# no Ideb observado
-estados45ano.metas <- estados45ano.table[, colnames(estados45ano.table) %in% c("", "Metas Projetadas")]
-colnames(estados45ano.metas) <- estados45ano.metas[1,]
-estados45ano.metas <- estados45ano.metas[-1,]
-estados45ano.metas <- estados45ano.metas %>%
-  as.tibble() %>%
-  gather("Ano", "Meta", 2:9)
+  # repete processo para "Meta"
+  ideb.metas <- ideb.table[, colnames(ideb.table) %in% c("", "Metas Projetadas")]
+  colnames(ideb.metas) <- ideb.metas[1,]
+  ideb.metas <- ideb.metas[-1,]
+  ideb.metas <- ideb.metas %>%
+    as.tibble() %>%
+    gather("Ano", "Meta", 2:9)
 
-# mescla as tabelas de "Observado" e "Metas", mantendo apenas as metas que já
-# têm Ideb calculado (2019 não tem)
-estados45ano.df <- inner_join(estados45ano.observado, estados45ano.metas, by=c("Estado", "Ano"))
+  # mescla as duas tabelas, ficando as colunas "Estado", "Ano", "Ideb" e "Meta"
+  # mantém apenas colunas de "Meta" para anos que já têm Ideb calculado
+  # (2019 não tem Ideb, então a Meta é descartada)
+  inner_join(ideb.observado, ideb.metas, by=c("Estado", "Ano")) # retorna tabela final
+}
+
+estados45ano.df <- clean.ideb.table(estados45ano.rawtable)
+estados89ano.df <- clean.ideb.table(estados89ano.rawtable)
+
 write_csv2(estados45ano.df, join.path(data.dir, "ideb/ideb-csv", "ideb-estados-45ano.csv"))
-
-##########################################################|
-#
-# falta replicar o processo para os outros anos
-#
+write_csv2(estados89ano.df, join.path(data.dir, "ideb/ideb-csv", "ideb-estados-89ano.csv"))
 
 ##########################################################|
 # EXPLORE SICONFI DATA
