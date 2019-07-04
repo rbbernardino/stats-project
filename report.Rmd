@@ -28,7 +28,7 @@ library(DT) # iteractive datatables
 ```
 
 ```{r include=FALSE}
-# FILES CONSTANTS
+# FILE CONSTANTS
 base.dir <- "."
 data.dir <- join.path(base.dir, "data")
 fin.estado.path <- join.path(data.dir, "tesouro-zip", "estado")
@@ -68,7 +68,7 @@ despesas.funcao.2017 <- read_csv2(unz(fin.estado17.path, "finbra.csv"),
                    "População" = col_number(),
                    Valor = col_number()))
 
-datatable(despesas.funcao.2017, options=list(pageLength=5), filter="top")
+datatable(sample_n(despesas.funcao.2017, 10), options=list(pageLength=5), filter="top")
 ```
 
 ### IDEB -- Índice de Desenvolvimento da Educação Básica {-}
@@ -109,7 +109,7 @@ datatable(estados45ano.df, options=list(scrollX=T), rownames=F, filter="top")
 
 ### Despesas por Função: 2017  {-}
 ```{r}
-datatable(despesas.funcao.2017,
+datatable(sample_n(despesas.funcao.2017, 100),
           rownames=F,
           filter="top",
           options=list(pageLength = 5, scrollX=T))
@@ -138,13 +138,28 @@ despesas.funcao.2017 %>%
 > **Problema:** nem todos os estados têm lançamentos para "Educação Básica" e alguns não têm para "Ensino Fundamental", então vou deixar todos com código "12" por enquanto.
 
 ```{r}
+# despesas relacionadas à educação
+contas.educacao <- c(
+  "12 - Educação",
+  "12.364 - Ensino Superior",
+  "12.366 - Educação de Jovens e Adultos",
+  "12.368 - Educação Básica",
+  #"12.122 - Administração Geral",
+  "12.361 - Ensino Fundamental",
+  "12.362 - Ensino Médio",
+  "12.363 - Ensino Profissional",
+  "12.365 - Educação Infantil",
+  "12.367 - Educação Especial"
+)
+
 # prepara tabela com "UF", "População", "Investimentos" e "Proporção"
 despesas.educ.2017 <- despesas.funcao.2017 %>%
-  filter(startsWith(as.character(Conta), "12")) %>% # todas que começam com "12", "12.1234" etc.
+  filter(Conta %in% contas.educacao) %>% # apenas relacionadas à educação
   ## filter(startsWith(as.character(Conta), "12.361")) %>% # Ensino Fundamental
   group_by(UF) %>%
   summarise(População=first(População), InvEduc = sum(Valor)) %>%
   mutate(PropInv = InvEduc/População)
+despesas.educ.2017
 ```
 
 ```{r}
