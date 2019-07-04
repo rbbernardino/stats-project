@@ -197,9 +197,15 @@ estados45ano.df %>%
 ```{r}
 ks.test(estadosInv.2017$InvEduc, 'pnorm')
 ```
+```{r}
+ggplot(despesas.educ.2017, aes(PropInv)) +
+  geom_histogram(binwidth=1000,aes(y =..density..))+
+  geom_density(col=2) 
+```
 
 ### Teste KS: Ideb Estados {-}
 - Teste KS não serve, pois existem "ties", valores repetidos
+
 
 ```{r}
 ks.test(estadosInv.2017$Ideb, 'pnorm')
@@ -208,6 +214,13 @@ ks.test(estadosInv.2017$Ideb, 'pnorm')
 ### Teste Shapiro: Proporção de Investimentos {-}
 - `p-value <2e-16`
 - rejeitamos a hipótese nula, não podemos afirmar normalidade
+```{r}
+data = fortify(estadosInv.2017$Ideb)
+
+ggplot(data, aes(PropInv)) +
+  geom_histogram(binwidth=1000,aes(y =..density..))+
+  geom_density(col=2) 
+```
 
 ```{r}
 shapiro.test(estadosInv.2017$InvEduc)
