@@ -6,6 +6,7 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 output:
     html_document:
         number_sections: TRUE
+        code_folding: hide
 ---
 
 # Exploração de Dados: IDEB x Contas do Governo
@@ -15,6 +16,7 @@ Basic libraries for dealing with data:
 library(plotly)       # interactive graphs
 library(RColorBrewer) # make new color sets
 library(tidyverse)    # easy manipulation of dataframes
+library(modelr)       # easy piping stats/model functions
 library(DT)           # generate interactive html tables
 library(rvest)        # scrap web pages
 source("utils.R")     # custom files with utilitary functions
@@ -29,84 +31,252 @@ library(DT) # iteractive datatables
 # FILES CONSTANTS
 base.dir <- "."
 data.dir <- join.path(base.dir, "data")
-output.dir <- join.path(base.dir, "results/")
+fin.estado.path <- join.path(data.dir, "tesouro-zip", "estado")
+fin.estado17.path <- join.path(fin.estado.path, "2017__DespesasporFuncao_EST-DF.zip")
+fin.estado15.path <- join.path(fin.estado.path, "2015__DespesasporFuncao_EST-DF.zip")
 ```
 
 ```{r include=FALSE}
 # some console printing setup
 options(digits=4)
-options(na.action = 'na.warn')
+options(na.action = 'na.warn') # requires modelr
 options(width=96) # max width in output/print commands
 ```
 
-## Leitura dos Dados
+## Sobre os Dados
 
-Lê dados de contas do governo
-```{r}
-despesas.funcao.2018 <- read_csv2(
-  join.path(data.dir, "tesouro-csv", "2018_Despesas-Funcao-ESTADOS.csv"),
+### Contas do governo - Tesouro Nacional {-}
+- https://siconfi.tesouro.gov.br/siconfi/pages/public/consulta_finbra/finbra_list.jsf
+- Tabela "Despesas por Função"
+- Filtrar gastos:
+   - 12 - Educação
+   - 12.364 - Ensino Superior
+   - 12.366 - Educação de Jovens e Adultos
+   - 12.368 - Educação Básica
+   - 12.122 - Administração Geral
+   - 12.361 - Ensino Fundamental
+   - 12.362 - Ensino Médio
+   - 12.363 - Ensino Profissional
+   - 12.365 - Educação Infantil
+   - 12.367 - Educação Especial
+
+```{r message=FALSE}
+despesas.funcao.2017 <- read_csv2(unz(fin.estado17.path, "finbra.csv"),
   locale=locale(encoding="ISO-8859-15"),
   skip=3,
   col_types = cols(.default = col_factor(NULL),
                    "População" = col_number(),
                    Valor = col_number()))
 
-datatable(despesas.funcao.2018, filter="top")
+datatable(despesas.funcao.2017, options=list(pageLength=5), filter="top")
 ```
 
-Lê dados do IDEB 4o-5o anos para cada estado, já foi convertido do HTML para CSV:
+### IDEB -- Índice de Desenvolvimento da Educação Básica {-}
+
+- http://portal.inep.gov.br/web/guest/educacao-basica/ideb/resultados
+
+#### Dados originais {-}
+```{r include=FALSE}
+parse.ideb.html <- function(html.path, table.id) {
+  read_html(html.path) %>%
+    html_node(table.id) %>%
+    html_table() # retorna um "data_frame()" padrão, depois converteremos para "tibble"
+}
+estados45ano.path <- join.path(data.dir, "ideb/estados/4-5-ano/ideb_estados_escolas-publica_4-5ano.html")
+estados45ano.rawtable <- parse.ideb.html(estados45ano.path, "#resultadoDataTable4")
+```
+
 ```{r}
+datatable(estados45ano.rawtable, options=list(scrollX=T), rownames=F)
+```
+
+
+#### Convertido para formato tidy:  {-}
+```{r message=FALSE}
 # leitura do CSV extraído do HTML
-estados45ano.df <- read_csv2(join.path(data.dir, "ideb/ideb-csv/ideb-estados-45ano.csv"))
-estados89ano.df <- read_csv2(join.path(data.dir, "ideb/ideb-csv/ideb-estados-89ano.csv"))
+estados45ano.df <- read_csv2(join.path(data.dir, "ideb/ideb-csv/ideb-estados-45ano.csv"),
+                             col_types = cols(Estado = col_factor(NULL),
+                                              Ano = col_factor(NULL),
+                                              Ideb = col_double(),
+                                              Meta = col_double()))
+estados45ano.df <- mutate(estados45ano.df, Estado=rename.brstates(Estado))
 datatable(estados45ano.df, options=list(scrollX=T), rownames=F, filter="top")
 ```
 
-## Exploração Inicial
-### Despesas por Função: 2018
+------
 
+## Exploração Inicial
+
+### Despesas por Função: 2017  {-}
 ```{r}
-datatable(despesas.funcao.2018,
+datatable(despesas.funcao.2017,
           rownames=F,
           filter="top",
           options=list(pageLength = 5, scrollX=T))
 ```
 
-### Checando os tipos de despesa
-
+### Checando os tipos de despesa  {-}
 ```{r}
-despesas.funcao.2018 %>%
+despesas.funcao.2017 %>%
   select(Conta) %>%
   unique() %>%
   datatable(rownames=F, filter="top")
 ```
 
-### Visualizando População
+### Visualizando População (2017) {-}
 ```{r}
-despesas.funcao.2018 %>%
+despesas.funcao.2017 %>%
   select(UF, População) %>%
-  ggplot(aes(x=UF, y=População)) +
-  geom_bar(stat = "identity")
+  unique() %>%
+  ggplot(aes(x=UF, y=População)) + geom_bar(stat = "identity")
 ```
 
-### Visualizando os Investimentos
+### Investimentos em Educação (2017)  {-}
 
 É aplicado um filtro para calcular a soma total de investimentos em educação de todo tipo "código inicia com 12"
 
+> **Problema:** nem todos os estados têm lançamentos para "Educação Básica" e alguns não têm para "Ensino Fundamental", então vou deixar todos com código "12" por enquanto.
+
 ```{r}
-despesas.funcao.2018 %>%
+# prepara tabela com "UF", "População", "Investimentos" e "Proporção"
+despesas.educ.2017 <- despesas.funcao.2017 %>%
   filter(startsWith(as.character(Conta), "12")) %>% # todas que começam com "12", "12.1234" etc.
+  ## filter(startsWith(as.character(Conta), "12.361")) %>% # Ensino Fundamental
   group_by(UF) %>%
-  summarise(InvEduc = sum(Valor)) %>%
-  ggplot(aes(x=UF, y=InvEduc)) +
-  geom_bar(stat = "identity")
+  summarise(População=first(População), InvEduc = sum(Valor)) %>%
+  mutate(PropInv = InvEduc/População)
 ```
 
 ```{r}
-despesas.funcao.2018 %>%
-  filter(startsWith(as.character(Conta), "12")) %>%
-  group_by(UF) %>%
-  summarise(InvEduc = sum(Valor)) %>%
-  ggplot(aes(x=UF, y=InvEduc)) +
-  geom_bar(stat = "identity")
+# Gráfico de barra Investimento total
+ggplot(despesas.educ.2017, aes(x=UF, y=InvEduc)) +
+  geom_bar(stat = "identity") +
+  ggtitle("Despesas em Educação por Estado") +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ylab("Investimento Total")
+```
+
+## Proporções de gastos em educação X população (2017)
+```{r}
+# Gráfico de barra com proporções Investimento/População
+ggplot(despesas.educ.2017, aes(x=UF, y=PropInv)) +
+  geom_bar(stat="identity") +
+  geom_smooth() +
+  ggtitle("Investimento em Educação Per Capta") +
+  ylab("Investimento em Educação Per Capta")
+```
+
+## Ideb por Estado (2017)
+```{r}
+estados45ano.df %>%
+  filter(Ano==2017) %>%
+  mutate(Estado = factor(Estado)) %>%
+  ggplot(aes(x=Estado, y=Ideb)) + geom_bar(stat="identity")
+```
+
+--------
+
+# Testes Realizados
+
+```{r}
+# prepara tabela, unindo Ideb com Proporção de investimentos
+estados45ano.df %>%
+  filter(Ano==2017) %>%
+  rename(UF=Estado) %>%
+  inner_join(despesas.educ.2017, by="UF") %>%
+  mutate(UF=factor(UF)) ->
+  estadosInv.2017
+```
+
+## Teste de normalidade Investimentos e IDEB
+
+### Teste KS: Proporção de Investimentos {-}
+- `p-value <2e-16`
+- rejeitamos a hipótese nula, não podemos afirmar normalidade
+
+```{r}
+ks.test(estadosInv.2017$InvEduc, 'pnorm')
+```
+
+### Teste KS: Ideb Estados {-}
+- Teste KS não serve, pois existem "ties", valores repetidos
+
+```{r}
+ks.test(estadosInv.2017$Ideb, 'pnorm')
+```
+
+### Teste Shapiro: Proporção de Investimentos {-}
+- `p-value <2e-16`
+- rejeitamos a hipótese nula, não podemos afirmar normalidade
+
+```{r}
+shapiro.test(estadosInv.2017$InvEduc)
+```
+
+### Teste Shapiro: Ideb Estados {-}
+- `p-value = 0.2`
+
+```{r}
+shapiro.test(estadosInv.2017$Ideb)
+```
+
+### Outros testes de normalidade {-}
+
+- **Resumo muito bom:** https://www.sheffield.ac.uk/polopoly_fs/1.579191!/file/stcp-karadimitriou-normalR.pdf
+- pacote com vários: https://www.rdocumentation.org/packages/nortest/versions/1.0-4
+  - KS, chamado de Lilliefors
+  - Shapiro
+  - Anderson
+  - Cramer
+  - Pearson
+
+
+--------------
+
+## Correlação Investimentos x IDEB
+
+```{r}
+ggplot(estadosInv.2017) +
+  geom_point(aes(x=InvEduc, y=Ideb)) +
+  xlab("Investimento per Capta") +
+  ylab("IDEB")
+```
+
+### Teste de Spearman {-}
+
+- Usado quando ao menos uma das variáveis é "ordinal", ou uma variável
+  categórica que possui uma ordem. Ex: nível de escolaridade
+- Não é o nosso caso, mas deixei aqui para consulta
+- https://rcompanion.org/rcompanion/e_02.html
+- http://www.biostathandbook.com/spearman.html
+
+```{r}
+cor.test( ~ InvEduc + Ideb,
+         data=estadosInv.2017,
+         method = "spearman",
+         continuity = FALSE,
+         conf.level = 0.95)
+```
+
+### Teste de Pearson {-}
+
+- Mais apropriado para o nosso caso
+- assume normalidade para ambas as distribuições
+- não apropriado para nosso caso...
+
+```{r}
+cor.test( ~ InvEduc + Ideb,
+         data=estadosInv.2017,
+         method = "pearson",
+         continuity = FALSE,
+         conf.level = 0.95)
+```
+
+### Outros testes de correlação
+
+- https://www.rdocumentation.org/packages/stats/versions/3.6.0/topics/cor.test
+- https://www.statisticssolutions.com/correlation-pearson-kendall-spearman/
+
+```{r}
+
 ```

@@ -36,6 +36,15 @@ despesas.funcao.2018 <- read_csv2(
                    "População" = col_number(),
                    Valor = col_number()))
 
+despesas.municipios.2018 <- read_csv2(
+  ## join.path(data.dir, "tesouro-csv", "2018_Despesas-Funcao-MUNICIPIOS.csv"),
+  unz("data/tesouro-zip/municipio/finbra_MUN_DespesasporFuncao(AnexoI-E).zip", "finbra.csv"),
+  locale=locale(encoding="ISO-8859-15"),
+  skip=3,
+  col_types = cols(.default = col_factor(NULL),
+                   "População" = col_number(),
+                   Valor = col_number()))
+
 ##########################################################|
 # READ IDEB DATA
 # função para extrair os dados do ideb a partir da listagem da página (html)
@@ -79,7 +88,9 @@ clean.ideb.table <- function(ideb.table) {
   # mescla as duas tabelas, ficando as colunas "Estado", "Ano", "Ideb" e "Meta"
   # mantém apenas colunas de "Meta" para anos que já têm Ideb calculado
   # (2019 não tem Ideb, então a Meta é descartada)
-  inner_join(ideb.observado, ideb.metas, by=c("Estado", "Ano")) # retorna tabela final
+  ideb.observado %>%
+    inner_join(ideb.metas, by=c("Estado", "Ano")) %>% # mesclagem
+    mutate(Estado = rename.brstates(Estado))          # nome do estado --> siglas
 }
 
 estados45ano.df <- clean.ideb.table(estados45ano.rawtable)
@@ -90,6 +101,8 @@ write_csv2(estados89ano.df, join.path(data.dir, "ideb/ideb-csv", "ideb-estados-8
 
 ##########################################################|
 # EXPLORE SICONFI DATA
+
+# gastos em educação por estado
 despesas.funcao.2018 %>%
   filter(startsWith(as.character(Conta), "12")) %>%
   group_by(UF) %>%
@@ -97,8 +110,29 @@ despesas.funcao.2018 %>%
   ggplot(aes(x=UF, y=InvEduc)) +
   geom_bar(stat = "identity")
 
+# população por estado
 despesas.funcao.2018 %>%
   select(UF, População) %>%
+  unique() %>%
   ggplot(aes(x=UF, y=População)) +
   geom_bar(stat = "identity")
 
+# proporções gastos em educação X população
+despesas.funcao.2018 %>%
+  filter(startsWith(as.character(Conta), "12")) %>%
+  group_by(UF) %>%
+  summarise(População=first(População), InvEduc = sum(Valor)) ->
+  despesas.perCapta.2018
+
+ggplot(despesas.perCapta.2018, aes(x=UF, y=InvEduc/População)) +
+  geom_bar(stat="identity") +
+  geom_smooth() +
+  ggtitle("Investimento em Educação Per Capta") +
+  ylab("Investimento em Educação Per Capta")
+
+###########################################################
+# IDEB por Estado
+estados45ano.df %>%
+  filter(Ano==2017) %>%
+  mutate(Estado = factor(Estado)) %>%
+  ggplot(aes(x=Estado, y=Ideb)) + geom_bar(stat="identity")
