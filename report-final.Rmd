@@ -1,0 +1,178 @@
+---
+title: "IN1119: Projeto Final"
+subtitle: "Princípios e Técnicas da Análise Estatística Experimental"
+author: "Delmiro Daladier, Rodrigo Bernardino, Rodrigo Valentim"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output:
+    html_document:
+        number_sections: TRUE
+        toc: true
+        toc_float:
+            collapsed: false
+---
+
+```{r}
+# Basic libraries for dealing with data:
+library(plotly)       # interactive graphs
+library(RColorBrewer) # make new color sets
+library(tidyverse)    # easy manipulation of dataframes
+library(modelr)       # easy piping stats/model functions
+library(DT)           # generate interactive html tables
+library(rvest)        # scrap web pages
+source("utils.R")     # custom files with utilitary functions
+
+# FILE CONSTANTS
+base.dir <- "."
+data.dir <- join.path(base.dir, "data")
+```
+
+# Sobre os Dados
+
+## IDEB -- Índice de Desenvolvimento da Educação Básica {-}
+
+- http://portal.inep.gov.br/web/guest/educacao-basica/ideb/resultados
+
+```{r}
+parse.ideb.html <- function(html.path, table.id) {
+  read_html(html.path) %>%
+    html_node(table.id) %>%
+    html_table() # retorna um "data_frame()" padrão, depois converteremos para "tibble"
+}
+estados45ano.path <- join.path(data.dir, "ideb/estados/4-5-ano/ideb_estados_escolas-publica_4-5ano.html")
+estados45ano.rawtable <- parse.ideb.html(estados45ano.path, "#resultadoDataTable4")
+```
+
+```{r}
+datatable(estados45ano.rawtable, options=list(scrollX=T), rownames=F)
+```
+
+### Ideb por Município {-}
+
+```{r}
+# lê CSV
+ideb.mun.df <- read_csv2(unz(ideb.mun.zip, "ideb-municipios.csv"),
+                             col_types = cols(
+                               .default=col_double(),
+                               UF = col_factor(NULL),
+                               CodigoMunicipio = col_factor(NULL),
+                               NomeMunicipio = col_factor(NULL),
+                               Rede = col_skip()))
+ideb.mun.df <- rename(ideb.mun.df,
+                      CodMun=CodigoMunicipio,
+                      Municipio=NomeMunicipio)
+```
+
+### Filtra Anos 2015 e 2017 e Remove "NA"s
+
+- **NOTA 1:** Alguns municípios não possuem Ideb em alguns anos
+
+```{r}
+# escolhe anos de interesse
+ideb.mun.15e17 <- ideb.mun.df %>%
+  select(UF, Municipio, IDEB_2015, IDEB_2017)
+
+# remove municípios incompletos (com Ideb faltando para 15 ou 17)
+ideb.mun.15e17 <- ideb.mun.15e17[complete.cases(ideb.mun.15e17),]
+
+# converte para formato "Tidy"
+ideb.mun.15e17 <- ideb.mun.15e17 %>%
+  rename("2015"=IDEB_2015, "2017"=IDEB_2017) %>%
+  gather("Ano", "Ideb", c("2015", "2017"))
+
+ideb.mun.15e17
+```
+
+- Função para gerar colunas para aplicar testes
+
+```{r}
+get.ideb <- function(full.df, uf, ano) {
+  full.df %>%
+    filter(UF==uf, Ano==ano) %>%
+    .$Ideb
+}
+```
+
+------
+
+# Teste de Normalidade IDEB -- Municípios
+
+$\textcolor{red}{FALTA ACRESCENTAR}$
+
+## Teste KS {-}
+- Teste KS não serve, pois existem "ties", valores repetidos
+
+```{r}
+# ks.test(estadosInv.2017$Ideb, 'pnorm')
+```
+
+## Teste Shapiro {-}
+- `p-value <2e-16`
+- rejeitamos a hipótese nula, não podemos afirmar normalidade
+
+```{r}
+# shapiro.test(estadosInv.2017$InvEduc)
+```
+
+-----------
+
+# Testes Wilcoxon {.tabset .tabset-fade .tabset-pills}
+
+- Bahia x Paraíba
+- Ceará x Pernambuco
+- Amazonas x Pernambuco
+
+## Bahia x Paraíba
+
+### Mann-Whitney 2015 = 2017 {.tabset .tabset-fade .tabset-pills}
+
+#### Paraíba
+```{r}
+#Teste de Mann-Whitney
+
+#Verificando a igualdade com alpha = 0.05 
+
+wilcox.test(ideb.PB.2017, ideb.PB.2015, alternative = "two.sided")
+
+```
+
+> Como o p-valor é 0.06 > 0.05. Não possimos evidência suficiente para rejeitar a hipótese nula.
+
+#### Bahia
+```{r}
+#Teste de Mann-Whitney
+
+#Verificando a igualdade com alpha = 0.05 
+
+wilcox.test(ideb.BA.2017, ideb.BA.2015, alternative = "two.sided")
+
+```
+
+> Como o p-valor 3e-08 < 0.05,rejeitamos a hipótese nula com uma significância de 5%.
+
+
+### Mann-Whitney 2017 > 2015 {.tabset .tabset-fade .tabset-pills}
+
+#### Paraíba
+```{r}
+#Verificando se ideb.BA.2017 > ideb.BA.015
+
+wilcox.test(ideb.BA.2017, ideb.BA.2015, alternative = "greater")
+```
+> verifica-se que houve aumento no ideb de 2015 para 2017 no estado da Bahia 
+
+#### Bahia
+```{r}
+#Verificando se ideb.BA.2017 > ideb.BA.015
+
+wilcox.test(ideb.BA.2017, ideb.BA.2015, alternative = "greater")
+```
+> verifica-se que houve aumento no ideb de 2015 para 2017 no estado da Bahia 
+
+
+### Wilcoxon Pareado BA x PB 2017
+```{r}
+#Verificando a igualdade com alpha = 0.05 
+
+wilcox.test(ideb.PB.2017, ideb.BA.2017, paired=FALSE,alternative = "two.sided")
+```
+> Como o p-valor é 0.8, não rejeitamos a hipótese nula. Verifica-se, então, uma igualdade do IDEB entre Bahia e Paraíba.
