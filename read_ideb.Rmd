@@ -1,0 +1,92 @@
+---
+title: "IN1119: Projeto Final"
+subtitle: "Princípios e Técnicas da Análise Estatística Experimental"
+author: "Daladier Delmiro, Rodrigo Bernardino, Rodrigo Valentim"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output:
+    html_document
+---
+
+
+# Preparativos
+
+## Carregando Libs
+
+```{r}
+library(plotly)       # interactive graphs
+library(RColorBrewer) # make new color sets
+library(tidyverse)    # easy manipulation of dataframes
+library(modelr)       # easy piping stats/model functions
+library(DT)           # generate interactive html tables
+source("utils.R")     # custom files with utilitary functions
+```
+
+## Definições de Arquivo
+
+```{r include=FALSE}
+# FILE CONSTANTS
+base.dir <- "."
+data.dir <- join.path(base.dir, "data")
+ideb.mun.path <- join.path(data.dir, "ideb/municipios/")
+ideb.mun.zip <- join.path(ideb.mun.path, "ideb-municipios.csv.zip")
+```
+
+# Prepara Dados
+
+## Leitura
+
+```{r}
+# lê CSV
+ideb.mun.df <- read_csv2(unz(ideb.mun.zip, "ideb-municipios.csv"),
+                             col_types = cols(
+                               .default=col_double(),
+                               UF = col_factor(NULL),
+                               CodigoMunicipio = col_factor(NULL),
+                               NomeMunicipio = col_factor(NULL),
+                               Rede = col_skip()))
+ideb.mun.df <- rename(ideb.mun.df,
+                      CodMun=CodigoMunicipio,
+                      Municipio=NomeMunicipio)
+ideb.mun.df
+```
+
+## Filtra Anos 2015 e 2017 + remove "NA"s
+
+- **NOTA 1:** Alguns municípios só possuem NA em anos antigos, então filtrei antes de remover
+
+- **NOTA 2:** Converti para Tidy para facilitar
+
+```{r}
+# escolhe anos de interesse
+ideb.mun.15e17 <- ideb.mun.df %>%
+  select(UF, Municipio, IDEB_2015, IDEB_2017)
+
+# remove municípios incompletos (com Ideb faltando para 15 ou 17)
+ideb.mun.15e17 <- ideb.mun.15e17[complete.cases(ideb.mun.15e17),]
+
+# converte para formato "Tidy"
+ideb.mun.15e17 <- ideb.mun.15e17 %>%
+  rename("2015"=IDEB_2015, "2017"=IDEB_2017) %>%
+  gather("Ano", "Ideb", c("2015", "2017"))
+
+ideb.mun.15e17
+```
+
+-----
+
+# Filtra por Estado e Salva em Variáveis para cada ano
+
+- Basta chamar a função `get.ideb` que o vetor será retornado!
+
+```{r}
+get.ideb <- function(full.df, uf, ano) {
+  full.df %>%
+    filter(UF==uf, Ano==ano) %>%
+    .$Ideb
+}
+
+ideb.PE.2015 <- get.ideb(ideb.mun.15e17, "PE", "2015")
+ideb.PE.2017 <- get.ideb(ideb.mun.15e17, "PE", "2017")
+
+print(ideb.PE.2015)
+```
