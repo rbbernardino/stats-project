@@ -1,0 +1,109 @@
+---
+title: "IN1119: Projeto Final"
+subtitle: "Princípios e Técnicas da Análise Estatística Experimental"
+author: "Delmiro Daladier, Rodrigo Bernardino, Rodrigo Valentim"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output:
+    html_document
+---
+
+
+```{r include=FALSE}
+# libraries
+library(plotly)       # interactive graphs
+library(RColorBrewer) # make new color sets
+library(tidyverse)    # easy manipulation of dataframes
+library(modelr)       # easy piping stats/model functions
+library(DT)           # generate interactive html tables
+source("utils.R")     # custom files with utilitary functions
+
+# FILE CONSTANTS
+base.dir <- "."
+data.dir <- join.path(base.dir, "data")
+ideb.mun.path <- join.path(data.dir, "ideb/municipios/")
+ideb.mun.zip <- join.path(ideb.mun.path, "ideb-municipios.csv.zip")
+```
+
+# Prepara Dados {.tabset .tabset-fade .tabset-pills}
+## Leitura
+```{r}
+# lê CSV
+ideb.mun.df <- read_csv2(unz(ideb.mun.zip, "ideb-municipios.csv"),
+                             col_types = cols(
+                               .default=col_double(),
+                               UF = col_factor(NULL),
+                               CodigoMunicipio = col_factor(NULL),
+                               NomeMunicipio = col_factor(NULL),
+                               Rede = col_skip()))
+ideb.mun.df <- rename(ideb.mun.df,
+                      CodMun=CodigoMunicipio,
+                      Municipio=NomeMunicipio)
+ideb.mun.df
+```
+
+## Filtra Anos 2015 e 2017 + remove "NA"s
+```{r}
+ideb.mun.15e17 <- ideb.mun.df %>%
+  select(UF, Municipio, IDEB_2015, IDEB_2017)
+ideb.mun.15e17 <- ideb.mun.15e17[complete.cases(ideb.mun.15e17),]
+ideb.mun.15e17 <- ideb.mun.15e17 %>%
+  rename("2015"=IDEB_2015, "2017"=IDEB_2017) %>%
+  gather("Ano", "Ideb", c("2015", "2017"))
+```
+
+------
+
+# Visualizando Variação 2015 x 2017 {.tabset .tabset-fade .tabset-pills}
+
+## Prepara Dados
+
+```{r}
+# organiza dados para melhorar visualização
+# separa municípios em "clusters"
+ranked.ideb.15e17 <- ideb.mun.15e17 %>%
+  group_by(UF, Ano) %>%
+  arrange(UF, Ano, Ideb) %>%
+  mutate(Rank=row_number()) %>%
+  ungroup()
+
+# função para plotar gráficos
+plot.years <- function(ranked.data, uf) {
+  ranked.data %>%
+    filter(UF==uf) %>%
+    mutate(UF=rename.brstates.2Name(UF)) ->
+    filtered.data
+  
+  ggplot(filtered.data, aes(x=Rank, y=Ideb, color=Ano)) +
+    geom_point() +
+    geom_smooth(aes(group=Ano)) +
+    ggtitle(filtered.data$UF[[1]], subtitle="Comparação 2015 x 2017") +
+    theme(
+      plot.title = element_text(hjust = 0.5),
+      plot.subtitle = element_text(hjust = 0.5))
+}
+```
+
+## Pernambuco
+```{r include=FALSE}
+plot.years(ranked.ideb.15e17, "PE")
+```
+
+## Ceará
+```{r include=FALSE}
+plot.years(ranked.ideb.15e17, "CE")
+```
+
+## Bahia
+```{r include=FALSE}
+plot.years(ranked.ideb.15e17, "BA")
+```
+
+## Paraíba
+```{r include=FALSE}
+plot.years(ranked.ideb.15e17, "PB")
+```
+
+## Amazonas
+```{r include=FALSE}
+plot.years(ranked.ideb.15e17, "AM")
+```
